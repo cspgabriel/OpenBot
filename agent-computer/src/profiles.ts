@@ -473,6 +473,7 @@ export function createProfiles(root: string, onClosed: BrowserClosed) {
         }
         const proxy = egressFor(botId, process.env);
         const context = await chromium.launchPersistentContext(dir, {
+          locale: process.env.COMPUTER_LOCALE?.trim() || "pt-BR",
           channel: BROWSER_RUNTIME.channel,
           headless: BROWSER_RUNTIME.mode === "headless",
           args: LAUNCH_ARGS,

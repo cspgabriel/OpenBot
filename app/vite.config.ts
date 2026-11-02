@@ -5,6 +5,7 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
 import { listenPort } from "../shared/listen-port";
+import localization from "./plugins/localization.mjs";
 
 /*
  * Announce the server's port to the two runtimes that serve the app through Vite, and to no other.
@@ -168,14 +169,29 @@ export const routeBuildRollupOutputOptions = {
   manualChunks: selectOpenBotManualChunk,
 };
 
+const deploymentLocale = process.env.OPENBOT_DEFAULT_LOCALE ?? "pt-BR";
+if (!["pt-BR", "en-US"].includes(deploymentLocale)) {
+  throw new Error("OPENBOT_DEFAULT_LOCALE must be pt-BR or en-US.");
+}
+
 export default defineConfig({
+  define: {
+    "import.meta.env.VITE_DEFAULT_LOCALE": JSON.stringify(deploymentLocale),
+  },
   plugins: [
+    {
+      name: "openbot-document-locale",
+      transformIndexHtml: (html) =>
+        html.replace(/<html lang="[^"]*"/, `<html lang="${deploymentLocale}"`),
+    },
     announceServerPort(apiPort.port),
     tanstackRouter({
       autoCodeSplitting: true,
       codeSplittingOptions: routeCodeSplittingOptions,
     }),
-    react(),
+    react({
+      babel: { plugins: [[localization, { locale: deploymentLocale }]] },
+    }),
     tailwindcss(),
   ],
   resolve: {

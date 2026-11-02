@@ -1,4 +1,5 @@
 import { CopilotChat } from "@copilotkit/react-core/v2";
+import { localizedMessageView } from "@/components/channels/localized-reasoning";
 import { IconPlus } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -242,6 +243,7 @@ function BotChat({ agentId, name }: { agentId: string; name: string }) {
            */}
           {threadId ? (
             <CopilotChat
+              messageView={localizedMessageView}
               agentId={agentId}
               key={`${agentId}:${threadId}`}
               threadId={threadId}
