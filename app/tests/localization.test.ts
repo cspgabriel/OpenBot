@@ -35,10 +35,20 @@ describe("deployment localization", () => {
     expect(output).toContain('value: "Computer"');
     expect(output).toContain('id: "Computers"');
     expect(output).toContain('href="/admin/computers"');
-    expect(output).toContain('aria-label="Fechar detalhes"');
+    expect(output).toContain('aria-label={"Fechar detalhes"}');
     expect(output).toContain('{"Computadores"}');
     expect(output).toContain('kind === "Computer"');
     expect(output).toContain('type Kind = "Computer"');
+  });
+
+  it("uses expressions for accented JSX attributes and formats dates inside messages", () => {
+    const output = transform(
+      '<Page title="Computers">{`Continue with ${date.toLocaleTimeString()} for ${person}`}</Page>',
+      "pt-BR",
+      { ...catalog, Computers: "Configuração" },
+    );
+    expect(output).toContain('title={"Configura');
+    expect(output).toContain('toLocaleTimeString("pt-BR")');
   });
 
   it("keeps the separator before a dynamic product name", () => {

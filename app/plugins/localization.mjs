@@ -222,28 +222,37 @@ export default function localization(api, options = {}) {
       StringLiteral(path, state) {
         if (!isDisplayPosition(path)) return;
         const result = translated(path.node.value, path, state);
-        if (result !== null) path.node.value = result;
-      },
-      TemplateLiteral(path, state) {
-        if (!isDisplayPosition(path)) return;
-        const key = path.node.quasis
-          .map(
-            (q, index) =>
-              (q.value.cooked ?? q.value.raw) +
-              (index < path.node.expressions.length ? `{{${index}}}` : ""),
-          )
-          .join("");
-        const result = translated(key, path, state);
         if (result === null) return;
-        state.formatIdentifier ??=
-          state.program.scope.generateUidIdentifier("formatMessage");
-        path.replaceWith(
-          t.callExpression(state.formatIdentifier, [
-            t.stringLiteral(result),
-            t.arrayExpression(path.node.expressions),
-          ]),
-        );
-        path.skip();
+        // Quoted JSX attributes do not interpret JavaScript's Unicode escapes.
+        // An expression keeps accented characters intact through JSX generation.
+        if (path.parentPath.isJSXAttribute()) {
+          path.replaceWith(t.jsxExpressionContainer(t.stringLiteral(result)));
+        } else {
+          path.node.value = result;
+        }
+      },
+      TemplateLiteral: {
+        exit(path, state) {
+          if (!isDisplayPosition(path)) return;
+          const key = path.node.quasis
+            .map(
+              (q, index) =>
+                (q.value.cooked ?? q.value.raw) +
+                (index < path.node.expressions.length ? `{{${index}}}` : ""),
+            )
+            .join("");
+          const result = translated(key, path, state);
+          if (result === null) return;
+          state.formatIdentifier ??=
+            state.program.scope.generateUidIdentifier("formatMessage");
+          path.replaceWith(
+            t.callExpression(state.formatIdentifier, [
+              t.stringLiteral(result),
+              t.arrayExpression(path.node.expressions),
+            ]),
+          );
+          path.skip();
+        },
       },
       CallExpression(path) {
         if (options.extract || locale !== "pt-BR") return;
