@@ -1,7 +1,11 @@
-import { CopilotKitProvider } from "@copilotkit/react-core/v2";
+import {
+  CopilotChatConfigurationProvider,
+  CopilotKitProvider,
+} from "@copilotkit/react-core/v2";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { deploymentCapabilitiesQueryOptions } from "@/lib/deployment/queries";
+import { chatLabels } from "@/lib/i18n-chat";
 import { a2uiProviderOptions } from "./a2ui";
 import { SignInTool } from "./sign-in-tool";
 import "./a2ui.css";
@@ -77,7 +81,11 @@ export function CopilotProvider({ children }: { children: ReactNode }) {
           `bot-creator` skill, so most runs are not offered these four tools at all.
         */}
         <BotTools />
-        {children}
+        <CopilotChatConfigurationProvider
+          {...(chatLabels ? { labels: chatLabels } : {})}
+        >
+          {children}
+        </CopilotChatConfigurationProvider>
       </ActiveBotProvider>
     </CopilotKitProvider>
   );

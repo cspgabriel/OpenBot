@@ -4,10 +4,12 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { queryClient } from "./query-client";
 import { router } from "./router";
+import { DEFAULT_LOCALE } from "./lib/i18n";
 import "@copilotkit/react-core/v2/styles.css";
 import "./styles.css";
 
 const rootElement = document.getElementById("root");
+document.documentElement.lang = DEFAULT_LOCALE;
 
 if (!rootElement) {
   throw new Error("OpenBot could not find the application root element.");
